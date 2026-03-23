@@ -180,7 +180,7 @@ class XPSPage(BasePage):
         """选择文件"""
         file_path, _ = QFileDialog.getOpenFileName(
             self, "选择文件", "",
-            "CSV文件 (*.csv);;所有文件 (*.*)"
+            "XPS 两列数据 (*.csv *.txt);;CSV (*.csv);;所有文件 (*.*)"
         )
         if file_path:
             if file_type == "nobac":
@@ -231,18 +231,15 @@ class XPSPage(BasePage):
                 self.run_btn.setEnabled(True)
                 return
 
-            import pandas as pd
-            nobac_df = pd.read_csv(self.nobac_file)
-            original_df = pd.read_csv(self.original_file)
-            bac_df = pd.read_csv(self.bac_file)
-
+            # WPEM.XPSfit / XPSsolver 内部对三份数据执行 pd.read_csv(..., header=None)
+            # 因此这里必须传文件路径字符串，不能传 DataFrame
             params = {
                 'Var': self.var_spin.value(),
                 'atomIdentifier': atomIdentifier,
                 'satellitePeaks': [],
-                'no_bac_df': nobac_df,
-                'original_df': original_df,
-                'bacground_df': bac_df,
+                'no_bac_df': self.nobac_file,
+                'original_df': self.original_file,
+                'bacground_df': self.bac_file,
                 'energy_range': (self.energy_min.value(), self.energy_max.value()),
                 'bta': self.bta_spin.value(),
                 'iter_max': self.iter_max_spin.value(),

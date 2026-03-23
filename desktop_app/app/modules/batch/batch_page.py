@@ -7,12 +7,14 @@ from pathlib import Path
 from PyQt5.QtWidgets import (
     QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFileDialog,
     QListWidget, QProgressBar, QComboBox, QGroupBox, QFormLayout,
-    QTextEdit, QTableWidget, QTableWidgetItem, QHeaderView
+    QTextEdit, QTableWidget, QTableWidgetItem, QHeaderView, QLineEdit
 )
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from ...base_page import BasePage
+from ...config import OUTPUT_DIR
 from ...utils import (
-    select_files, select_directory, show_error_message, show_info_message
+    select_files, select_directory, show_error_message, show_info_message,
+    load_xrd_data
 )
 
 
@@ -22,34 +24,65 @@ class BatchWorker(QThread):
     log = pyqtSignal(str)
     finished = pyqtSignal(bool, str)
 
-    def __init__(self, files, mode, params, WPEM):
+    def __init__(self, files, mode, params, WPEM, base_output_dir=None):
         super().__init__()
         self.files = files
         self.mode = mode
         self.params = params
         self.WPEM = WPEM
+        self.base_output_dir = Path(base_output_dir) if base_output_dir else OUTPUT_DIR
+        self._stop = False
 
     def run(self):
         try:
             total = len(self.files)
             for i, f in enumerate(self.files):
+                if self._stop:
+                    return
                 self.progress.emit(int((i + 1) / total * 100))
 
-                if self.mode == "background":
-                    self.log.emit(f"处理: {Path(f).name}")
-                    # 调用BackgroundFit
+                fname = Path(f)
+                fname_stem = fname.stem   # e.g. "laoh_Theta_2-Theta"
+                # 每个文件的结果放在 {base_output_dir}/{原文件名}/ 下
+                work_dir = str(self.base_output_dir / fname_stem)
+                Path(work_dir).mkdir(parents=True, exist_ok=True)
 
-                elif self.mode == "cif_preprocess":
-                    self.log.emit(f"解析: {Path(f).name}")
-                    # 调用CIFpreprocess
+                if self.mode == "批量背景扣除":
+                    self.log.emit(f"处理: {fname.name}  →  {fname_stem}/")
+                    ok, df_or_msg = load_xrd_data(f)
+                    if not ok:
+                        self.log.emit(f"  [跳过] {fname.name}: {df_or_msg}")
+                        continue
+                    params = {
+                        'intensity_csv': df_or_msg,
+                        'LFctg': self.params.get('LFctg', 0.5),
+                        'bac_num': self.params.get('bac_num', None),
+                        'bac_split': self.params.get('bac_split', 5),
+                        'window_length': self.params.get('window_length', 17),
+                        'polyorder': self.params.get('polyorder', 3),
+                        'poly_n': self.params.get('poly_n', 6),
+                        'bac_var_type': self.params.get('bac_var_type', 'constant'),
+                        'Model': self.params.get('Model', 'XRD'),
+                        'work_dir': work_dir,
+                    }
+                    self.WPEM.BackgroundFit(**params)
+                    self.log.emit(f"  完成: {fname_stem}/")
 
-                elif self.mode == "simulation":
-                    self.log.emit(f"模拟: {Path(f).name}")
-                    # 调用XRDSimulation
+                elif self.mode == "批量CIF预处理":
+                    self.log.emit(f"解析: {fname.name}")
+                    pass
 
-            self.finished.emit(True, "批量处理完成")
+                elif self.mode == "批量XRD模拟":
+                    self.log.emit(f"模拟: {fname.name}")
+                    pass
+
+            if not self._stop:
+                self.finished.emit(True, "批量处理完成")
         except Exception as e:
             self.finished.emit(False, str(e))
+
+    def stop(self):
+        self._stop = True
 
 
 class BatchPage(BasePage):
@@ -86,6 +119,20 @@ class BatchPage(BasePage):
 
         mode_group.setLayout(mode_layout)
         layout.addWidget(mode_group)
+
+        # 批量输出目录
+        out_group = self.create_section_group("输出设置")
+        out_layout = QHBoxLayout()
+        self.out_dir_edit = QLineEdit()
+        self.out_dir_edit.setReadOnly(True)
+        self.out_dir_edit.setText(str(OUTPUT_DIR))
+        out_dir_btn = QPushButton("浏览...")
+        out_dir_btn.clicked.connect(self._select_output_dir)
+        out_layout.addWidget(QLabel("输出目录:"))
+        out_layout.addWidget(self.out_dir_edit, 1)
+        out_layout.addWidget(out_dir_btn)
+        out_group.setLayout(out_layout)
+        layout.addWidget(out_group)
 
         # 文件列表
         file_group = self.create_section_group("文件列表")
@@ -167,7 +214,7 @@ class BatchPage(BasePage):
         """添加文件"""
         mode = self.mode_combo.currentIndex()
         if mode == 0:
-            filter_str = "数据文件 (*.csv *.txt *.dat);;所有文件 (*.*)"
+            filter_str = "数据文件 (*.csv *.asc *.ras *.txt *.dat *.xrdml);;Rigaku ASC (*.asc);;Rigaku RAS (*.ras);;所有文件 (*.*)"
         elif mode == 1:
             filter_str = "CIF文件 (*.cif);;所有文件 (*.*)"
         else:
@@ -188,7 +235,7 @@ class BatchPage(BasePage):
 
         mode = self.mode_combo.currentIndex()
         if mode == 0:
-            patterns = ["*.csv", "*.txt", "*.dat"]
+            patterns = ["*.csv", "*.asc", "*.ras", "*.txt", "*.dat", "*.xrdml"]
         else:
             patterns = ["*.cif"]
 
@@ -220,6 +267,12 @@ class BatchPage(BasePage):
             self.file_list.pop(selected)
             self.file_table.removeRow(selected)
 
+    def _select_output_dir(self):
+        """选择批量输出目录"""
+        dir_path = QFileDialog.getExistingDirectory(self, "选择输出目录", str(OUTPUT_DIR))
+        if dir_path:
+            self.out_dir_edit.setText(dir_path)
+
     def _start_batch(self):
         """开始批量处理"""
         if not self.file_list:
@@ -237,11 +290,16 @@ class BatchPage(BasePage):
         self.stop_btn.setEnabled(True)
 
         # 创建工作线程
+        # 在主线程先切换 Matplotlib 后端为 Agg，避免子线程中 plt.show() 卡死
+        import matplotlib
+        matplotlib.use('Agg')
+
         self.worker = BatchWorker(
             self.file_list,
             self.mode_combo.currentText(),
             {},
-            self.WPEM
+            self.WPEM,
+            base_output_dir=self.out_dir_edit.text(),
         )
 
         self.worker.progress.connect(self._on_progress)
@@ -253,7 +311,7 @@ class BatchPage(BasePage):
     def _stop_batch(self):
         """停止批量处理"""
         if self.worker:
-            self.worker.terminate()
+            self.worker.stop()
             self.log("批量处理已停止")
 
         self.start_btn.setEnabled(True)
