@@ -1,132 +1,208 @@
-
+# PyXplore Desktop
 
 <p align="center">
-  <img src="https://github.com/Bin-Cao/TCGPR/assets/86995074/28f69830-4ece-43b3-a887-e78fdb25bcab" width="140" alt="PyWPEM Logo"/>
+  <img src="logos/Logo.png" width="200" alt="PyXplore Logo"/>
 </p>
 
 <p align="center">
-  <strong>Python Toolkit for X-ray Diffraction Simulation, Analysis, and AI-driven Structure Refinement</strong> 
-
+  <strong>Desktop Application for X-ray Diffraction Analysis and AI-driven Structure Refinement</strong>
 </p>
 
 <p align="center">
-  <a href="https://bin-cao.github.io/PyWPEM/">Project Homepage</a> ·  
+  <a href="https://github.com/ZhouXuan-Yu/PyXplore_pyqt">GitHub Repository</a> ·
   <a href="https://pyxplore.netlify.app/">Algorithm Documentation</a> ·
-  <a href="https://arxiv.org/abs/2602.16372">Paper (arXiv)</a> ·
-  <a href="https://www.researchgate.net/publication/400962382_Supplementary_Information_for_AI-Driven_Structure_Refinement_of_X-ray_Diffraction?_sg%5B0%5D=Dtl5qCZhJGfQkbUlv7_PX1Kx7TwdxuOHNLZVyFl1KGrHUSRNKl2vANa2VizCBgzhvFZHOprN-9U2OY37DKVt7bfexdXMbmSSl2dV9rdY.wb_SKqOPT-AERbwQd_WLh7pYYIbpMj0u3f0wWIKra43GjGnKbuLqobFTgQ1YfutJIXWN8RGFN5y9oCoEcEyeoQ&_tp=eyJjb250ZXh0Ijp7ImZpcnN0UGFnZSI6ImxvZ2luIiwicGFnZSI6InByb2ZpbGUiLCJwcmV2aW91c1BhZ2UiOiJwcm9maWxlIiwicG9zaXRpb24iOiJwYWdlQ29udGVudCJ9fQ">Supplementary Information</a> ·
-  <a href="https://www.pepy.tech/projects/PyXplore">Download Statistics</a>
+  <a href="https://arxiv.org/abs/2602.16372">Paper (arXiv)</a>
 </p>
 
-
-
-
-
-
-<p align="center">
-  <img width="600" src="https://github.com/user-attachments/assets/e37ee8c4-8bdd-4de0-b27e-2ce7270a8a07" />
-</p>
-
-Other tools include [XQueryer](https://github.com/Bin-Cao/XQueryer) for initial structure inference and [PRDNet](https://github.com/Bin-Cao/PRDNet) for crystal property prediction.
-
- 
 ---
 
-## Overview [![PyPI Downloads](https://static.pepy.tech/personalized-badge/pyxplore?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=downloads)](https://pepy.tech/projects/pyxplore)
+## Overview
 
-**[PyXplore](https://pyxplore.netlify.app/)** is a modular Python framework for **X-ray diffraction (XRD) simulation, decomposition, quantitative analysis, and AI-assisted structure refinement**.
+**PyXplore Desktop** is a PyQt5-based desktop application that provides a graphical interface for the [PyXplore (PyWPEM)](https://github.com/Bin-Cao/PyWPEM) library. It integrates comprehensive X-ray diffraction (XRD) analysis capabilities with AI-driven structure refinement, enabling researchers to perform complex crystallographic analyses through an intuitive desktop environment.
 
-It integrates:
+---
 
-* Physics-based diffraction modeling
-* EM-based Bragg optimization
-* Structure graph construction
-* Extinction and Wyckoff analysis
-* Amorphous phase quantification
-* AI-driven structural refinement
+## Features
 
-The toolkit is designed for reproducible scientific workflows in materials characterization and AI for Science research.
+### Core Analysis Modules
 
+| Module | Description |
+|--------|-------------|
+| **Background Deduction** | Remove background from XRD data using FFT filtering and Savitzky-Golay smoothing |
+| **CIF Preprocess** | Parse CIF files, calculate crystallographic parameters, and visualize unit cells |
+| **XRD Simulation** | Simulate XRD patterns from crystal structures with configurable parameters |
+| **XRD Refinement** | Full pattern decomposition and lattice constant refinement using the WPEM method |
+| **Amorphous Analysis** | Gaussian mixture model peak fitting and Radial Distribution Function (RDF) calculation |
+| **XPS Analysis** | X-ray photoelectron spectroscopy decomposition and peak fitting |
+| **EXAFS Analysis** | Extended X-ray absorption fine structure analysis with Fourier/wavelet transforms |
+| **Batch Processing** | Process multiple files with consistent parameters |
 
+### Key Capabilities
 
-Install from PyPI and [Install the dependencies](https://github.com/Bin-Cao/PyWPEM/blob/main/INSTALL.md):
+- **Multi-format Support**: Import CSV, TXT, DAT, XRDML and other common data formats
+- **Interactive Visualization**: Real-time plotting with zoom, pan, and export capabilities
+- **AI-assisted Refinement**: WPEM-based optimization for accurate quantitative phase analysis
+- **Extinction & Wyckoff Handling**: Symmetry-aware preprocessing for structural filtering
+- **Multi-modal Analysis**: Integrated support for XRD, XPS, and XAS techniques
 
-```bash
-pip install PyXplore
+---
+
+## Installation
+
+### Prerequisites
+
+- Python 3.8+
+- Conda environment (recommended: RAG environment for TensorFlow compatibility)
+- Windows/Linux/macOS
+
+### Quick Start
+
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/ZhouXuan-Yu/PyXplore_pyqt.git
+   cd PyXplore_pyqt
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   pip install -r requirements_desktop.txt
+   ```
+
+3. **Run the application**:
+   ```bash
+   cd desktop_app
+   python run.py
+   ```
+
+   Or use the batch script:
+   ```bash
+   cd desktop_app
+   run.bat
+   ```
+
+---
+
+## User Interface
+
+### Main Window Layout
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  PyXplore Desktop                                    [─][□][×]  │
+├─────────────────────────────────────────────────────────────────┤
+│  File  Edit  View  Tools  Help                                  │
+├────────────┬────────────────────────────────────────────────────┤
+│            │                                                     │
+│  📁 Background     │                                              │
+│  📁 CIF Preprocess│          Content Area                        │
+│  📁 XRD Simulation│    (Dynamic based on selected module)       │
+│  📁 XRD Refinement │                                              │
+│  📁 Amorphous      │                                              │
+│  📁 XPS            │                                              │
+│  📁 EXAFS          │                                              │
+│  📁 Batch          │                                              │
+│            │                                                     │
+├────────────┴────────────────────────────────────────────────────┤
+│  Status: Ready                                                  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-Upgrade to the latest version:
+### Module Descriptions
 
-```bash
-pip install --upgrade PyXplore
+#### Background Deduction
+- Import XRD, Raman, or XPS data files
+- FFT-based low-frequency filtering
+- Savitzky-Golay smoothing for background extraction
+- Configurable parameters: filter percentage, split number, polynomial order
+
+#### CIF Preprocess
+- Parse CIF crystallographic files
+- Calculate lattice constants (a, b, c, α, β, γ)
+- Generate atomic coordinate tables
+- Optional structure relaxation using M3Gnet
+
+#### XRD Simulation
+- Simulate diffraction patterns from crystal structures
+- Configurable wavelength (CuKα, CoKα, MoKα, custom)
+- Super cell generation and solid solution modeling
+- Peak broadening based on grain size
+- Zero shift correction
+
+#### XRD Refinement
+- WPEM-based full pattern decomposition
+- Multi-phase quantitative analysis
+- Lattice constant optimization
+- R-factor reporting (Rp, Rwp)
+
+#### Amorphous Analysis
+- **Peak Fitting**: Gaussian mixture model for amorphous peak deconvolution
+- **RDF Calculation**: Radial distribution function computation from diffraction data
+
+#### XPS Analysis
+- Peak decomposition for photoelectron spectra
+- Support for multiple atomic species and satellite peaks
+- Pseudo-Voigt function fitting
+
+#### EXAFS Analysis
+- k-space processing and weighting
+- Fourier transform to R-space
+- Wavelet transform option for enhanced resolution
+
+#### Batch Processing
+- Process multiple files in sequence
+- Template-based parameter management
+- Progress tracking and result export
+
+---
+
+## Project Structure
+
+```
+PyXplore_pyqt/
+├── desktop_app/
+│   ├── main.py                 # Application entry point
+│   ├── run.py                  # Launch script
+│   ├── run.bat                 # Windows launch script
+│   ├── app/
+│   │   ├── main_window.py      # Main window (QMainWindow)
+│   │   ├── base_page.py        # Base class for module pages
+│   │   ├── config.py           # Configuration management
+│   │   ├── utils.py            # Utility functions
+│   │   └── modules/            # Functional modules
+│   │       ├── background/     # Background deduction
+│   │       ├── cif_preprocess/ # CIF preprocessing
+│   │       ├── xrd_simulation/ # XRD simulation
+│   │       ├── xrd_refinement/ # XRD refinement
+│   │       ├── amorphous/      # Amorphous analysis
+│   │       ├── xps/           # XPS analysis
+│   │       ├── exafs/         # EXAFS analysis
+│   │       └── batch/         # Batch processing
+│   ├── requirements.txt        # Desktop app dependencies
+│   └── ConvertedDocuments/    # Sample data files
+├── src/                        # PyXplore core library
+├── logos/                      # Application logos
+├── docs/                       # Documentation
+└── requirements.txt           # Core dependencies
 ```
 
-
 ---
 
-## Key Features
+## Technical Stack
 
-* **XRD Simulation**
-  Accurate diffraction pattern generation from crystallographic information.
-
-* **Peak Decomposition & Quantitative Analysis**
-  WPEM-based decomposition and volume fraction determination.
-
-* **Bragg Law Optimization (EM Framework)**
-  Expectation-Maximization-based parameter solving.
-
-* **Extinction & Wyckoff Handling**
-  Symmetry-aware preprocessing and structural filtering.
-
-* **Graph-Based Structure Representation**
-  Crystal graph construction for downstream machine learning tasks.
-
-* **Amorphous Structure Analysis**
-  RDF-based quantitative evaluation.
-
-* **Multi-modal Extension**
-  Integrated modules for XAS and XPS analysis.
-
----
-
-## Architecture Overview
-
-```text
-PyWPEM/
-├── WPEM.py
-├── XRDSimulation/
-├── EMBraggOpt/
-├── Refinement/
-├── StructureOpt/
-├── GraphStructure/
-├── Extinction/
-├── Amorphous/
-├── Background/
-├── Plot/
-├── DecomposePlot/
-├── WPEMXAS/
-├── WPEMXPS/
-└── refs/
-```
-
-The design follows a **physics-consistent, modular architecture**, enabling independent or pipeline-based execution.
-
----
-
-## Tables & Figures
-
-<p align="center">
-  <img width="450" src="https://github.com/user-attachments/assets/da5bd320-3651-4223-b862-06fb5ce1f96a" />
-</p>
-
-<p align="center">
-  <img width="700" src="https://github.com/user-attachments/assets/50b1aacc-6a4f-4b58-95fb-a4094da60055" />
-</p>
+| Component | Technology |
+|-----------|------------|
+| Frontend Framework | PyQt5 5.15+ |
+| Visualization | Matplotlib + FigureCanvasQTAgg |
+| Data Processing | NumPy, Pandas, SciPy |
+| Core Algorithms | PyXplore (WPEM, M3Gnet) |
+| AI/ML | TensorFlow (via M3Gnet) |
 
 ---
 
 ## Scientific Reference
 
-If you use **PyWPEM** in your research, please cite:
+If you use **PyXplore Desktop** in your research, please cite:
 
 ```bibtex
 @article{cao2026wpem,
@@ -140,49 +216,20 @@ If you use **PyWPEM** in your research, please cite:
 
 ---
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Bin-Cao/PyWPEM&type=Date)](https://star-history.com/#Bin-Cao/PyWPEM&Date)
+## License
 
-
-
-
+This project is released under the MIT License.
 
 ---
 
 ## Contributing
 
-We welcome contributions from the community.
-
-* Report bugs via Issues
-* Propose features
-* Submit pull requests
-* Contact for academic collaboration
-
-Please ensure code readability, documentation clarity, and scientific correctness before submission.
+Contributions are welcome! Please feel free to submit issues or pull requests.
 
 ---
 
-## License
+## Contact
 
-This project is released under the MIT License.
-
-Free for academic and commercial use.
-Please cite related publications when used in scientific research.
-
----
-
-<table>
-  <tr>
-    <td width="160" align="center" valign="top">
-      <img src="https://github.com/user-attachments/assets/7e77bd5a-42d6-45db-b8e6-2c82cac81b9d" width="140" style="border-radius: 50%;"/>
-    </td>
-    <td valign="top">
-      <b>For any inquiries or assistance, feel free to contact Mr. CAO Bin at:</b><br>
-      📧 Email: <a href="mailto:bcao686@connect.hkust-gz.edu.cn">bcao686@connect.hkust-gz.edu.cn</a><br><br>
-      Cao Bin is a PhD candidate at the <b>Hong Kong University of Science and Technology (Guangzhou)</b>, 
-      under the supervision of Professor <a href="https://gbaaa.org.hk/en-us/article/67">Zhang Tong-Yi</a>. His research focuses on 
-      <b>AI for science</b>, especially intelligent crystal-structure analysis and discovery. 
-      Learn more about his work on his 
-      <a href="https://bin-cao.github.io/">homepage</a>.
-    </td>
-  </tr>
-</table>
+For questions or support, please contact:
+- **Email**: bcao686@connect.hkust-gz.edu.cn
+- **Affiliation**: Hong Kong University of Science and Technology (Guangzhou)
