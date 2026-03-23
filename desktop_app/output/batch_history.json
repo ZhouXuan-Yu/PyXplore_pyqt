@@ -1,0 +1,13 @@
+[
+  {
+    "time": "2026-03-23 13:57:56",
+    "mode": "批量背景扣除",
+    "total": 2,
+    "success": 2,
+    "base_dir": "D:/Aprogress/PyWPEM/Atest",
+    "files": [
+      "D:\\Aprogress\\PyWPEM\\Atest\\20260320\\laoh_Theta_2-Theta.asc",
+      "D:\\Aprogress\\PyWPEM\\Atest\\20260320\\laoh.ras"
+    ]
+  }
+]

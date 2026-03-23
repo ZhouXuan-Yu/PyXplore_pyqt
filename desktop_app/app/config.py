@@ -113,3 +113,32 @@ FONTS = {
     "body": {"size": 12, "bold": False},
     "caption": {"size": 10, "bold": False},
 }
+
+# 下拉框全局样式（解决 Windows/Fusion 下选中项白字白底不可见）
+# 选中项：绿色文字 + 浅绿背景，悬停：深绿字 + 更浅绿底
+COMBO_BOX_STYLE = """
+QComboBox QAbstractItemView {
+    background-color: #FFFFFF;
+    color: #333333;
+    outline: 0px;
+    selection-background-color: #C8E6C9;
+    selection-color: #1B5E20;
+}
+QComboBox QAbstractItemView::item {
+    min-height: 22px;
+    padding: 4px 8px;
+    color: #333333;
+}
+QComboBox QAbstractItemView::item:selected {
+    background-color: #A5D6A7;
+    color: #1B5E20;
+}
+QComboBox QAbstractItemView::item:hover {
+    background-color: #E8F5E9;
+    color: #2E7D32;
+}
+QComboBox QAbstractItemView::item:selected:hover {
+    background-color: #A5D6A7;
+    color: #1B5E20;
+}
+"""

@@ -13,6 +13,7 @@ if str(src_path) not in sys.path:
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt
 from app.main_window import MainWindow
+from app.config import COMBO_BOX_STYLE
 
 
 def main():
@@ -25,6 +26,8 @@ def main():
 
     # 设置应用样式
     app.setStyle('Fusion')
+    # 下拉列表选中项：绿色文字，避免白底白字
+    app.setStyleSheet(COMBO_BOX_STYLE)
 
     # 创建并显示主窗口
     window = MainWindow()

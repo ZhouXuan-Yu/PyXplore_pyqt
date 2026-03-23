@@ -33,6 +33,7 @@ from .modules.amorphous.amorphous_page import AmorphousPage
 from .modules.xps.xps_page import XPSPage
 from .modules.exafs.exafs_page import EXAFSPage
 from .modules.batch.batch_page import BatchPage
+from .modules.history.history_page import HistoryPage
 
 
 class MainWindow(QMainWindow):
@@ -248,6 +249,11 @@ class MainWindow(QMainWindow):
         batch_item.setText(0, "Batch Processing")
         batch_item.setData(0, Qt.UserRole, {"module": "batch", "icon": "stack"})
 
+        # History Module
+        history_item = QTreeWidgetItem(self.nav_tree)
+        history_item.setText(0, "History Records")
+        history_item.setData(0, Qt.UserRole, {"module": "history", "icon": "clock"})
+
         # Expand all items
         self.nav_tree.expandAll()
 
@@ -308,6 +314,10 @@ class MainWindow(QMainWindow):
         self.batch_page = BatchPage(self)
         self.content_stack.addWidget(self.batch_page)
 
+        # History page
+        self.history_page = HistoryPage(self)
+        self.content_stack.addWidget(self.history_page)
+
         # Module mapping
         self.module_pages = {
             "background": self.background_page,
@@ -318,6 +328,7 @@ class MainWindow(QMainWindow):
             "xps": self.xps_page,
             "exafs": self.exafs_page,
             "batch": self.batch_page,
+            "history": self.history_page,
         }
 
     def _create_menu_bar(self):
@@ -472,6 +483,7 @@ class MainWindow(QMainWindow):
                 "xps": "XPS Analysis",
                 "exafs": "EXAFS Analysis",
                 "batch": "Batch Processing",
+                "history": "History Records",
             }
             self.status_label.setText(f"Current Module: {module_names.get(module_name, module_name)}")
 
