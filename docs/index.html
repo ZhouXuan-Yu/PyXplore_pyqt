@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PyWPEM | AI-Driven Structure Refinement of X-ray Diffraction</title>
+  <meta name="description" content="PyWPEM presents WPEM, a physics-constrained framework for AI-driven structure refinement of X-ray diffraction with Bragg-consistent whole-pattern decomposition.">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav shell">
+      <a class="brand" href="#top"><img src="figs/Logo.jpg" alt="PyWPEM"><span>PyWPEM</span></a>
+      <div class="nav-links">
+        <a href="#abstract">Abstract</a>
+        <a href="#highlights">Highlights</a>
+        <a href="#applications">Applications</a>
+        <a href="#figures">Figures</a>
+        <a href="#citation">Citation</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero shell">
+      <div class="hero-copy centered-copy">
+        <p class="eyebrow">PyWPEM · Paper page</p>
+        <h1>AI-Driven Structure Refinement of X-ray Diffraction</h1>
+        <p class="hero-subtitle">A physics-constrained bridge between AI-generated crystal hypotheses and crystallographic validation.</p>
+        <p class="authors"><span class="author-emphasis">Bin Cao<sup>1</sup></span>, Qian Zhang<sup>2</sup>, Zhenjie Feng<sup>2</sup>, Taolue Zhang<sup>1</sup>, Jiaqiang Huang<sup>1</sup>, Lu-Tao Weng<sup>1</sup>, Tong-Yi Zhang<sup>1</sup></p>
+        <p class="author-focus">Project lead and contact: <strong>Cao Bin</strong></p>
+        <p class="affiliations"><sup>1</sup> HKUST (Guangzhou) · <sup>2</sup> Shanghai University</p>
+        <div class="hero-actions">
+          <a class="button primary" href="https://arxiv.org/abs/2602.16372" target="_blank" rel="noreferrer">Read Paper</a>
+          <a class="button" href="https://github.com/Bin-Cao/PyWPEM" target="_blank" rel="noreferrer">GitHub</a>
+          <a class="button" href="https://pyxplore.netlify.app/" target="_blank" rel="noreferrer">Documentation</a>
+        </div>
+        <p class="hero-note">Whole-pattern expectation-maximization (WPEM) embeds Bragg-law constraints into probabilistic whole-pattern decomposition for stable, refinement-ready XRD analysis.</p>
+      </div>
+      <div class="hero-media figure-frame">
+        <img src="figs/Fig1.png" alt="Figure 1 from the PyWPEM paper showing the AI-to-refinement workflow">
+      </div>
+    </section>
+
+    <section id="abstract" class="section shell narrow">
+      <div class="section-heading centered">
+        <p class="eyebrow">Abstract</p>
+        <h2>Physics-constrained refinement for modern AI-enabled crystallography</h2>
+      </div>
+      <div class="prose statement-block">
+        <p>Artificial intelligence can generate plausible crystal hypotheses from X-ray diffraction, but these hypotheses often fail during refinement when intensities become non-identifiable under strong peak overlap. WPEM addresses this bottleneck by embedding Bragg consistency directly into batch expectation-maximization, producing a continuous, component-resolved intensity representation that is physically admissible, numerically stable, and refinement-ready.</p>
+        <p>Across reference benchmarks and challenging real-world regimes—including multiphase mixtures, semicrystalline polymers, operando tracking, disordered solids, and synchrotron archaeological samples—PyWPEM delivers robust whole-pattern decomposition while preserving crystallographic rigor.</p>
+      </div>
+    </section>
+
+    <section id="highlights" class="section shell">
+      <div class="section-heading">
+        <p class="eyebrow">Highlights</p>
+        <h2>Core contributions</h2>
+      </div>
+      <div class="simple-grid">
+        <article>
+          <h3>Physics-constrained refinement</h3>
+          <p>WPEM converts AI-generated structure proposals into Bragg-admissible, refinement-ready inputs.</p>
+        </article>
+        <article>
+          <h3>Stable in severe overlap</h3>
+          <p>Responsibility-weighted EM offers a soft, overlap-aware decomposition where conventional profile fitting may become fragile.</p>
+        </article>
+        <article>
+          <h3>Quantitative interpretation</h3>
+          <p>The method supports phase fractions, lattice tracking, and component-resolved analysis across complex XRD regimes.</p>
+        </article>
+      </div>
+    </section>
+
+    <section id="applications" class="section shell">
+      <div class="section-heading">
+        <p class="eyebrow">Applications</p>
+        <h2>Validated across representative scientific cases</h2>
+      </div>
+      <div class="applications-list">
+        <div><strong>Benchmarks.</strong> Lower profile factors than FullProf and TOPAS on PbSO<sub>4</sub> and Tb<sub>2</sub>BaCoO<sub>5</sub> under matched settings.</div>
+        <div><strong>Operando XRD.</strong> Robust time-series refinement for lattice evolution tracking during electrochemical cycling.</div>
+        <div><strong>Disordered solids.</strong> Automated screening of candidate occupations in complex Ru–Mn oxide systems.</div>
+        <div><strong>Archaeological samples.</strong> Phase-resolved decomposition of a heavily overlapped ancient Egyptian make-up pattern.</div>
+        <div><strong>Semicrystalline polymers.</strong> Unified separation of crystalline peaks and amorphous halos for crystallinity analysis.</div>
+        <div><strong>Reproducible workflows.</strong> Open code, cases, and documentation for research and deployment.</div>
+      </div>
+    </section>
+
+    <section id="figures" class="section shell">
+      <div class="section-heading">
+        <p class="eyebrow">Figures from main.pdf</p>
+        <h2>Key results from the paper</h2>
+      </div>
+      <div class="gallery minimal-gallery">
+        <figure class="gallery-item wide"><a href="figs/Fig2.png" target="_blank" rel="noreferrer"><img src="figs/Fig2.png" alt="Benchmarking and quantitative decomposition figure"></a><figcaption><strong>Figure 2.</strong> Benchmarking and quantitative decomposition across reference datasets, multiphase Ti–15Nb analysis, and NaCl–Li₂CO₃ composition recovery.</figcaption></figure>
+        <figure class="gallery-item"><a href="figs/Fig3.png" target="_blank" rel="noreferrer"><img src="figs/Fig3.png" alt="Operando tracking and solid-solution refinement figure"></a><figcaption><strong>Figure 3.</strong> High-throughput PXRD workflows enabled by WPEM, including operando lattice tracking and automated solid-solution refinement.</figcaption></figure>
+        <figure class="gallery-item"><a href="figs/Fig4.png" target="_blank" rel="noreferrer"><img src="figs/Fig4.png" alt="Ancient Egyptian make-up decomposition figure"></a><figcaption><strong>Figure 4.</strong> Phase-resolved decomposition of a complex synchrotron sample from ancient Egyptian make-up.</figcaption></figure>
+        <figure class="gallery-item"><a href="figs/Fig5.png" target="_blank" rel="noreferrer"><img src="figs/Fig5.png" alt="Semicrystalline diffraction quantitative analysis figure"></a><figcaption><strong>Figure 5.</strong> Separation of crystalline peaks and amorphous halos for semicrystalline diffraction analysis.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="section shell two-column">
+      <div>
+        <p class="eyebrow">Codebase</p>
+        <h2 class="compact-title">A modular scientific toolkit</h2>
+        <p class="muted">PyWPEM includes modules for simulation, Bragg optimization, refinement, graph construction, amorphous analysis, and XAS/XPS extensions. The implementation is designed for reproducible research workflows rather than visual complexity.</p>
+      </div>
+      <div class="module-list">
+        <span>XRDSimulation</span>
+        <span>EMBraggOpt</span>
+        <span>Refinement</span>
+        <span>StructureOpt</span>
+        <span>GraphStructure</span>
+        <span>Extinction</span>
+        <span>Amorphous</span>
+        <span>WPEMXAS / WPEMXPS</span>
+      </div>
+    </section>
+
+    <section id="citation" class="section shell citation-grid">
+      <div>
+        <div class="section-heading left">
+          <p class="eyebrow">Citation</p>
+          <h2>If this work contributes to your research, please cite the paper</h2>
+        </div>
+        <div class="code-block">
+<pre>@article{cao2026wpem,
+  title   = {AI-Driven Structure Refinement of X-ray Diffraction},
+  author  = {Bin Cao and Qian Zhang and Zhenjie Feng and Taolue Zhang and Jiaqiang Huang and Lu-Tao Weng and Tong-Yi Zhang},
+  journal = {arXiv preprint},
+  year    = {2026}
+}</pre>
+        </div>
+      </div>
+      <aside class="contact-card">
+        <p class="eyebrow">Resources</p>
+        <h3>Project links</h3>
+        <p>Open-source code, reproducible cases, and documentation for scientific use and GitHub Pages deployment.</p>
+        <div class="resource-links">
+          <a href="https://arxiv.org/abs/2602.16372" target="_blank" rel="noreferrer">Paper PDF</a>
+          <a href="https://github.com/Bin-Cao/PyWPEM/tree/main/CASES" target="_blank" rel="noreferrer">Datasets / Cases</a>
+          <a href="mailto:bcao686@connect.hkust-gz.edu.cn">Contact author</a>
+          <a href="https://bin-cao.github.io/" target="_blank" rel="noreferrer">Bin Cao's homepage</a>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="site-footer shell">
+    <p>PyWPEM — Whole-pattern expectation-maximization for AI-driven X-ray diffraction refinement.</p>
+    <p><a href="https://bin-cao.github.io/" target="_blank" rel="noreferrer">Bin Cao</a></p>
+  </footer>
+</body>
+</html>

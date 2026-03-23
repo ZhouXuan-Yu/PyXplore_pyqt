@@ -1,0 +1,18 @@
+# PyXplore Desktop dependencies
+# Core dependencies for PyXplore library
+numpy==1.26.4
+matplotlib==3.10.8
+scipy==1.15.3
+pandas==2.3.3
+sympy==1.14.0
+pymatgen==2025.10.7
+plotly==6.6.0
+monty==2025.3.3
+tqdm==4.67.3
+scikit-learn==1.7.2
+PyWavelets==1.8.0
+ase==3.26.0
+tensorflow==2.16.2
+
+# PyXplore Desktop GUI dependencies
+PyQt5==5.15.11
