@@ -1,8 +1,6 @@
 # PyXplore Desktop
 
-<p align="center">
-  <img src="logos/Logo.png" width="200" alt="PyXplore Logo"/>
-</p>
+
 
 <p align="center">
   <strong>Desktop Application for X-ray Diffraction Analysis and AI-driven Structure Refinement</strong>
