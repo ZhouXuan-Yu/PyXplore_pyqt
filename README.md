@@ -8,11 +8,7 @@
   <strong>Desktop Application for X-ray Diffraction Analysis and AI-driven Structure Refinement</strong>
 </p>
 
-<p align="center">
-  <a href="https://github.com/ZhouXuan-Yu/PyXplore_pyqt">GitHub Repository</a> ·
-  <a href="https://pyxplore.netlify.app/">Algorithm Documentation</a> ·
-  <a href="https://arxiv.org/abs/2602.16372">Paper (arXiv)</a>
-</p>
+
 
 ---
 
@@ -354,8 +350,3 @@ Contributions are welcome! Please feel free to submit issues or pull requests.
 
 ---
 
-## Contact
-
-For questions or support, please contact:
-- **Email**: bcao686@connect.hkust-gz.edu.cn
-- **Affiliation**: Hong Kong University of Science and Technology (Guangzhou)
