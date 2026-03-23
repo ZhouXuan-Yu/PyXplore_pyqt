@@ -31,6 +31,18 @@
 - **Extinction & Wyckoff Handling**: Symmetry-aware preprocessing for structural filtering
 - **Multi-modal Analysis**: Integrated support for XRD, XPS, and XAS techniques
 
+
+### 功能页面
+    <img width="1403" height="1209" alt="image" src="https://github.com/user-attachments/assets/92dd7ef2-88e4-40a7-95be-7567e3f12888" />
+    <img width="1403" height="1209" alt="image" src="https://github.com/user-attachments/assets/29c02314-357b-4669-ab2a-3529ca5e674a" />
+    <img width="1403" height="1209" alt="image" src="https://github.com/user-attachments/assets/dc3ec98c-a737-4006-90b7-628aa19e5228" />
+    <img width="1403" height="1209" alt="image" src="https://github.com/user-attachments/assets/55c9c71b-9487-46e9-bac3-e859f09dccf7" />
+    <img width="1403" height="1209" alt="image" src="https://github.com/user-attachments/assets/e93dcb98-f2e1-4b4f-ad8e-cd8d061e4bb6" />
+    <img width="1403" height="1209" alt="image" src="https://github.com/user-attachments/assets/238267fc-d779-40de-888b-6e96b58006f3" />
+    <img width="1403" height="1209" alt="image" src="https://github.com/user-attachments/assets/5ea207ac-8694-47b1-8dc6-6c77fac1d088" />
+    <img width="1403" height="1209" alt="image" src="https://github.com/user-attachments/assets/e3890537-99d7-4dba-9d05-a48d1e740525" />
+    <img width="1403" height="1209" alt="image" src="https://github.com/user-attachments/assets/2f176ee9-f108-4215-8fd2-bd0f6d2391d8" />
+
 ---
 
 ## Installation
