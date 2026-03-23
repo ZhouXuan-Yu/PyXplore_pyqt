@@ -1,13 +1,5 @@
 # PyXplore Desktop
 
-
-
-<p align="center">
-  <strong>Desktop Application for X-ray Diffraction Analysis and AI-driven Structure Refinement</strong>
-</p>
-
-
-
 ---
 
 ## Overview
