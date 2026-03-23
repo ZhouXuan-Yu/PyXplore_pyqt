@@ -11,8 +11,10 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 from ...base_page import BasePage
 from ...config import DEFAULT_PARAMS
+from pathlib import Path
 from ...utils import (
-    select_file, show_error_message, show_info_message
+    select_file, show_error_message, show_info_message,
+    format_wpem_missing_message,
 )
 
 
@@ -170,13 +172,16 @@ class EXAFSPage(BasePage):
             return
 
         if not self.WPEM:
-            show_error_message("错误", "PyXplore库未加载", self)
+            show_error_message("错误", format_wpem_missing_message(self), self)
             return
 
         self.run_btn.setEnabled(False)
         self.log("开始EXAFS分析...")
 
         try:
+            # work_dir 放在 output/exafs 下，WPEM 会在其下建子目录
+            work_dir = self.get_output_dir() / "exafs"
+            work_dir.mkdir(parents=True, exist_ok=True)
             params = {
                 'XAFSdata': self.xafs_file,
                 'power': self.power_spin.value(),
@@ -186,11 +191,19 @@ class EXAFSPage(BasePage):
                 'window_size': self.window_size_spin.value(),
                 'transform': self.transform_combo.currentText(),
                 'de_bac': self.de_bac_check.isChecked(),
+                'work_dir': str(work_dir),
             }
 
             self.WPEM.EXAFSfit(**params)
 
             self.log("EXAFS分析完成!")
+            self.record_operation_history(
+                "EXAFS分析",
+                str(work_dir),
+                total=1,
+                success=1,
+                files=[self.xafs_file],
+            )
             show_info_message("完成", "EXAFS分析完成!", self)
 
         except Exception as e:

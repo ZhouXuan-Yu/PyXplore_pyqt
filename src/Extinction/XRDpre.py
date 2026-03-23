@@ -16,7 +16,8 @@ from ..XRDSimulation.DiffractionGrometry.atom import atomics
 from ..EMBraggOpt.BraggLawDerivation import BraggLawDerivation
 from ..Plot.UnitCell import plotUnitCell
 from ..EMBraggOpt.WPEMFuns.SolverFuns import cal_system
-from .Relaxer import _Relaxer
+# 注意：勿在模块顶层 from .Relaxer import _Relaxer —— Relaxer 依赖 tensorflow/m3gnet。
+# 桌面打包版未必包含 TensorFlow；仅在 relaxation=True 时再懒加载（见下方分支）。
 
 class profile:
     def __init__(self, wavelength='CuKa',two_theta_range=(10, 90),show_unitcell=False,cal_extinction = True,relaxation=False,work_dir=None):
@@ -156,11 +157,22 @@ class profile:
 
         lattic_density = lattic_mass / lattic_volume
 
-        # relaxition
+        # relaxition（懒加载 M3GNet / TensorFlow，避免 import src.WPEM 时强制依赖 tf）
         if self.relaxation == True:
             print('M2GNET is applied for calculating the fromation energy per atom')
-            lattice, final_energy_per_atom = _Relaxer(system,latt,AtomCoordinates)
-        else:pass
+            try:
+                from .Relaxer import _Relaxer  # noqa: PLC0415
+            except ModuleNotFoundError as _e:
+                raise ModuleNotFoundError(
+                    "M3GNet / TensorFlow 未安装或未打包。如需启用晶格弛豫功能，请："
+                    "1) 在 conda 环境 pip install tensorflow m3gnet；"
+                    "2) 在 PyXplore_Desktop.spec 的 hiddenimports 中加入 tensorflow、m3gnet；"
+                    "3) 重新打包。"
+                ) from _e
+
+            lattice, final_energy_per_atom = _Relaxer(system, latt, AtomCoordinates)
+        else:
+            pass
 
 
         return latt, AtomCoordinates,lattic_density

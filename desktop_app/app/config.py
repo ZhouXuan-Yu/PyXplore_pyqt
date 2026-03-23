@@ -1,15 +1,21 @@
 # PyXplore Desktop 配置文件
 
 import os
+import sys
 from pathlib import Path
 
-# 项目根目录
-PROJECT_ROOT = Path(__file__).parent.parent
+# ==================== PyInstaller 冻结环境适配 ====================
+# 打包后 __file__ 指向 _MEIPASS（只读），需要将 output/temp 放在 exe 所在目录
+if getattr(sys, 'frozen', False):
+    APP_ROOT = Path(sys.executable).parent
+    PROJECT_ROOT = APP_ROOT
+else:
+    PROJECT_ROOT = Path(__file__).parent.parent
 
 # 源代码路径
 SRC_PATH = PROJECT_ROOT.parent / "src"
 
-# 输出目录
+# 输出目录（始终放在 exe 同级目录，打包后也可写）
 OUTPUT_DIR = PROJECT_ROOT / "output"
 OUTPUT_DIR.mkdir(exist_ok=True)
 

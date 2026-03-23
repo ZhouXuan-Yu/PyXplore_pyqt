@@ -157,17 +157,69 @@ desktop_app/
 │   ├── main_window.py      # Main window
 │   ├── modules/            # Functional modules
 │   │   ├── background/     # Background deduction
-│   │   ├── cif_preprocess/# CIF preprocess
-│   │   ├── xrd_simulation/# XRD simulation
-│   │   ├── xrd_refinement/# XRD refinement
-│   │   ├── amorphous/     # Amorphous analysis
+│   │   ├── cif_preprocess/ # CIF preprocess
+│   │   ├── xrd_simulation/ # XRD simulation
+│   │   ├── xrd_refinement/ # XRD refinement
+│   │   ├── batch/         # Batch processing
+│   │   ├── history/        # History records
 │   │   ├── xps/           # XPS analysis
 │   │   ├── exafs/         # EXAFS analysis
-│   │   └── batch/         # Batch processing
+│   │   └── amorphous/     # Amorphous analysis
 │   ├── widgets/           # Custom widgets
 │   └── resources/         # Resources (icons, styles)
+├── modules/              # Reserved module slot
 └── requirements.txt       # Python dependencies
 ```
+
+## Build / Packaging
+
+This project uses **PyInstaller** to package the application into a standalone `.exe` for Windows.
+
+### Prerequisites
+
+```bash
+pip install pyinstaller
+```
+
+### Quick Build (Windows)
+
+Double-click or run in terminal:
+
+```bash
+build.bat
+```
+
+Or use the Python script (cross-platform):
+
+```bash
+python build.py
+```
+
+### Build Modes
+
+| Mode | Command | Output |
+|------|---------|--------|
+| Default (onedir) | `build.bat` or `python build.py` | `dist/PyXplore_Desktop/PyXplore_Desktop.exe` |
+| Single file | `python build.py onefile` | `dist/PyXplore_Desktop.exe` |
+| Clean only | `python build.py clean` | Deletes `dist/` and `build/` |
+| Check deps | `python build.py check` | Verifies all dependencies |
+
+### Files Created by Build
+
+```
+PyXplore_Desktop/              # ← dist/
+├── PyXplore_Desktop.exe       # ← 主程序
+├── output/                    # ← 用户数据目录（程序自动创建）
+├── temp/                      # ← 临时文件目录
+└── ...依赖文件...
+```
+
+### Notes
+
+- **打包后的 `output/` 和 `temp/` 目录位于 exe 同级目录**，而不是程序内部
+- 如果需要自定义 exe 图标，请准备一个 `.ico` 文件，修改 `PyXplore_Desktop.spec` 中的 `icon` 字段
+- TensorFlow 体积较大（约 500MB），首次打包耗时较长，请耐心等待
+- 如果打包后运行出错，可先尝试 `python build.py rebuild --no-clean` 查看详细错误信息
 
 ## License
 

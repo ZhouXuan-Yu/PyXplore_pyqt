@@ -45,6 +45,21 @@ class BasePage(QWidget):
         """初始化UI - 子类实现"""
         raise NotImplementedError("子类必须实现 _init_ui 方法")
 
+    def record_operation_history(self, mode, base_dir, total=1, success=1, files=None):
+        """
+        写入一条操作历史（与批量处理共用 batch_history.json）。
+        各功能模块在成功完成主要计算后调用。
+        """
+        from .utils import append_desktop_history
+
+        append_desktop_history(
+            mode,
+            base_dir,
+            total=total,
+            success=success,
+            files=files,
+        )
+
     def create_title_label(self, text):
         """创建标题标签"""
         label = QLabel(text)

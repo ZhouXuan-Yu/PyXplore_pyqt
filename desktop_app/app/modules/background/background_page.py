@@ -16,8 +16,14 @@ from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from ...base_page import BasePage
 from ...config import XRAY_WAVELENGTHS, SPECTRUM_TYPES, BAC_VAR_TYPES, DEFAULT_PARAMS
 from ...utils import (
-    load_xrd_data, validate_data_file, select_file, save_file_dialog,
-    show_error_message, show_info_message, get_output_path
+    load_xrd_data,
+    validate_data_file,
+    select_file,
+    save_file_dialog,
+    show_error_message,
+    show_info_message,
+    get_output_path,
+    format_wpem_missing_message,
 )
 
 
@@ -266,7 +272,7 @@ class BackgroundPage(BasePage):
             return
 
         if not self.WPEM:
-            show_error_message("错误", "PyXplore库未加载", self)
+            show_error_message("错误", format_wpem_missing_message(self), self)
             return
 
         self.run_btn.setEnabled(False)
@@ -291,7 +297,9 @@ class BackgroundPage(BasePage):
                 'Model': self.spectrum_type_combo.currentText(),
             }
 
-            # 调用PyXplore
+            # 调用PyXplore（work_dir 放在 output 下的 background 子目录，WPEM 会在其下建 ConvertedDocuments/）
+            work_dir = self.get_output_dir() / "background"
+            params["work_dir"] = str(work_dir)
             self.background_std = self.WPEM.BackgroundFit(**params)
 
             self.log("背景扣除完成!")
@@ -300,6 +308,13 @@ class BackgroundPage(BasePage):
             # 启用保存按钮
             self.save_btn.setEnabled(True)
 
+            self.record_operation_history(
+                "背景扣除",
+                str(work_dir),
+                total=1,
+                success=1,
+                files=[self.input_file],
+            )
             show_info_message("完成", "背景扣除处理完成!", self)
 
         except Exception as e:
@@ -319,8 +334,8 @@ class BackgroundPage(BasePage):
         no_bac_file = output_dir / "no_bac_intensity.csv"
         bac_file = output_dir / "bac.csv"
 
-        # 从PyXplore输出目录复制
-        source_dir = Path("ConvertedDocuments")
+        # 从 PyXplore 输出目录（已固定为 output/background/ConvertedDocuments）复制回来
+        source_dir = self.get_output_dir() / "background" / "ConvertedDocuments"
 
         if source_dir.exists():
             import shutil

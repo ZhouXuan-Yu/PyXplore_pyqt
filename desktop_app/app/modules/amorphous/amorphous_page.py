@@ -13,8 +13,10 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 from ...base_page import BasePage
 from ...config import XRAY_WAVELENGTHS, DEFAULT_PARAMS
+from pathlib import Path
 from ...utils import (
-    select_file, show_error_message, show_info_message
+    select_file, show_error_message, show_info_message,
+    format_wpem_missing_message,
 )
 
 
@@ -190,24 +192,35 @@ class AmorphousPage(BasePage):
             return
 
         if not self.WPEM:
-            show_error_message("错误", "PyXplore库未加载", self)
+            show_error_message("错误", format_wpem_missing_message(self), self)
             return
 
         self.fit_btn.setEnabled(False)
         self.log("开始非晶峰拟合...")
 
         try:
+            # work_dir 放在 output/amorphous 下，WPEM 会在其下建 DecomposedComponents/ 等目录
+            work_dir = self.get_output_dir() / "amorphous"
+            work_dir.mkdir(parents=True, exist_ok=True)
             params = {
                 'mix_component': self.mix_component_spin.value(),
                 'amor_file': self.amorphous_file,
                 'ang_range': (self.ang_min.value(), self.ang_max.value()),
                 'max_iter': self.max_iter_spin.value(),
                 'Wavelength': XRAY_WAVELENGTHS[self.rdf_wavelength_combo.currentText()],
+                'work_dir': str(work_dir),
             }
 
             self.WPEM.Amorphous_fit(**params)
 
             self.log("非晶峰拟合完成!")
+            self.record_operation_history(
+                "非晶峰拟合",
+                str(work_dir),
+                total=1,
+                success=1,
+                files=[self.amorphous_file],
+            )
             show_info_message("完成", "非晶峰拟合完成!", self)
 
         except Exception as e:
@@ -220,23 +233,34 @@ class AmorphousPage(BasePage):
     def _run_rdf(self):
         """运行RDF计算"""
         if not self.WPEM:
-            show_error_message("错误", "PyXplore库未加载", self)
+            show_error_message("错误", format_wpem_missing_message(self), self)
             return
 
         self.rdf_btn.setEnabled(False)
         self.log("开始RDF计算...")
 
         try:
+            # work_dir 放在 output/amorphous 下，WPEM 会在其下建 DecomposedComponents/ 等目录
+            work_dir = self.get_output_dir() / "amorphous"
+            work_dir.mkdir(parents=True, exist_ok=True)
             params = {
                 'wavelength': XRAY_WAVELENGTHS[self.rdf_wavelength_combo.currentText()],
                 'r_max': self.r_max_spin.value(),
                 'density_zero': self.density_spin.value(),
                 'highlight': self.highlight_spin.value(),
+                'work_dir': str(work_dir),
             }
 
             self.WPEM.AmorphousRDFun(**params)
 
             self.log("RDF计算完成!")
+            self.record_operation_history(
+                "RDF计算",
+                str(work_dir),
+                total=1,
+                success=1,
+                files=[self.amorphous_file] if self.amorphous_file else None,
+            )
             show_info_message("完成", "RDF计算完成!", self)
 
         except Exception as e:

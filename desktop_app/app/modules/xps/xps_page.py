@@ -13,8 +13,10 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 from ...base_page import BasePage
 from ...config import DEFAULT_PARAMS
+from pathlib import Path
 from ...utils import (
-    select_file, show_error_message, show_info_message
+    select_file, show_error_message, show_info_message,
+    format_wpem_missing_message,
 )
 
 
@@ -205,7 +207,7 @@ class XPSPage(BasePage):
             return
 
         if not self.WPEM:
-            show_error_message("错误", "PyXplore库未加载", self)
+            show_error_message("错误", format_wpem_missing_message(self), self)
             return
 
         self.run_btn.setEnabled(False)
@@ -231,6 +233,9 @@ class XPSPage(BasePage):
                 self.run_btn.setEnabled(True)
                 return
 
+            # work_dir 放在 output/xps 下，WPEM 会在其下建 ConvertedDocuments/ 等目录
+            work_dir = self.get_output_dir() / "xps"
+            work_dir.mkdir(parents=True, exist_ok=True)
             # WPEM.XPSfit / XPSsolver 内部对三份数据执行 pd.read_csv(..., header=None)
             # 因此这里必须传文件路径字符串，不能传 DataFrame
             params = {
@@ -243,11 +248,19 @@ class XPSPage(BasePage):
                 'energy_range': (self.energy_min.value(), self.energy_max.value()),
                 'bta': self.bta_spin.value(),
                 'iter_max': self.iter_max_spin.value(),
+                'work_dir': str(work_dir),
             }
 
             self.WPEM.XPSfit(**params)
 
             self.log("XPS拟合完成!")
+            self.record_operation_history(
+                "XPS分析",
+                str(work_dir),
+                total=1,
+                success=1,
+                files=[self.nobac_file, self.original_file, self.bac_file],
+            )
             show_info_message("完成", "XPS拟合完成!", self)
 
         except Exception as e:

@@ -12,3 +12,4 @@ scikit-learn==1.7.2
 PyWavelets==1.8.0
 ase==3.26.0
 tensorflow==2.16.2
+pyinstaller

@@ -4,11 +4,22 @@ import sys
 import os
 from pathlib import Path
 
-# 添加src目录到Python路径，以便导入PyXplore库
-project_root = Path(__file__).parent.parent
-src_path = project_root / "src"
-if str(src_path) not in sys.path:
-    sys.path.insert(0, str(src_path))
+# ==================== PyInstaller 冻结环境适配 ====================
+# 判断是否处于打包后的运行环境
+if getattr(sys, 'frozen', False):
+    # 打包后：_MEIPASS 下有 src/ 包（与仓库一致），需把 _MEIPASS 加入 path 才能 import src.WPEM
+    BUNDLE_DIR = Path(sys._MEIPASS)
+    if str(BUNDLE_DIR) not in sys.path:
+        sys.path.insert(0, str(BUNDLE_DIR))
+    APP_ROOT = Path(sys.executable).parent
+else:
+    # 开发调试环境
+    BUNDLE_DIR = None
+    # 须将「仓库根目录」加入 path，才能 import src.WPEM（包名为 src，不是把 src 目录本身当根）
+    project_root = Path(__file__).resolve().parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+
 
 from PyQt5.QtWidgets import QApplication
 from PyQt5.QtCore import Qt

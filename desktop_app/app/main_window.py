@@ -7,11 +7,17 @@ Implements the main window framework: Navigation + Content Area + Status Bar
 import sys
 from pathlib import Path
 
-# Add src directory to Python path to import PyXplore library
-project_root = Path(__file__).parent.parent.parent
-src_path = project_root / "src"
-if str(src_path) not in sys.path:
-    sys.path.insert(0, str(src_path))
+# Add path for import src.WPEM（WPEM 内为相对导入，必须与开发环境同为「包 src」）
+# 开发环境：仓库根在 path；打包后：_MEIPASS 根在 path（其下有 src/ 子目录）
+if getattr(sys, 'frozen', False):
+    project_root = Path(sys.executable).parent
+    bundle_root = Path(sys._MEIPASS)
+else:
+    project_root = Path(__file__).parent.parent.parent
+    bundle_root = project_root
+
+if str(bundle_root) not in sys.path:
+    sys.path.insert(0, str(bundle_root))
 
 from PyQt5.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QSplitter,
@@ -48,8 +54,9 @@ class MainWindow(QMainWindow):
         # Logger
         self.logger = get_project_logger("MainWindow")
 
-        # PyXplore library
+        # PyXplore library（src.WPEM）；失败时 wpem_import_error 供界面提示
         self.WPEM = None
+        self.wpem_import_error = None
         self._init_pyXplore()
 
         # Current module
@@ -64,13 +71,16 @@ class MainWindow(QMainWindow):
         self.logger.info("Main window initialized")
 
     def _init_pyXplore(self):
-        """Initialize PyXplore library"""
+        """Initialize PyXplore library (package src.WPEM)"""
         success, result = import_pyXplore()
         if success:
             self.WPEM = result
-            self.logger.info("PyXplore library loaded successfully")
+            self.wpem_import_error = None
+            self.logger.info("PyXplore library loaded successfully (src.WPEM)")
         else:
-            self.logger.warning(f"Failed to load PyXplore library: {result}")
+            self.WPEM = None
+            self.wpem_import_error = str(result)
+            self.logger.warning(f"Failed to load src.WPEM: {result}")
 
     def _init_ui(self):
         """Initialize UI"""

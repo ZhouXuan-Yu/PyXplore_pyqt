@@ -1,13 +1,19 @@
 import re
 import numpy as np
 import matplotlib.pyplot as plt
-from ipywidgets import interactive
-from IPython.display import display
-import ipywidgets as widgets
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from ..XRDSimulation.DiffractionGrometry.atom import atomics
-from ipywidgets import interactive, widgets
-from IPython.display import display, HTML
+
+# ipywidgets/IPython 只在 Jupyter 环境中可用，打包后静默跳过
+try:
+    from ipywidgets import interactive
+    from IPython.display import display
+    import ipywidgets as widgets
+    from IPython.display import HTML
+    _HAS_IPYWIDGETS = True
+except Exception:
+    _HAS_IPYWIDGETS = False
+    widgets = None
 
 class plotUnitCell(object):
     def __init__(self,atom_coordinatses,lattice_param,):
@@ -15,14 +21,20 @@ class plotUnitCell(object):
         self.lattice_param = lattice_param
 
 
-    def plot(self,):
-        elevation_slider = widgets.IntSlider(value=0, min=-90, max=90, description='elevation')
-        azimuth_slider = widgets.IntSlider(value=0, min=-180, max=180, description='azimuth')
-        interact_func = interactive(self.sub_plot,elevation=elevation_slider, azimuth=azimuth_slider)
-        interact_func.children[0].value = 30  
-        interact_func.children[1].value = 60  
-        display(interact_func)
-        plt.show()
+    def plot(self, elevation=30, azimuth=60):
+        """Plot unit cell. In Jupyter this opens interactive sliders; in packaged app falls back to static view."""
+        if _HAS_IPYWIDGETS:
+            elevation_slider = widgets.IntSlider(value=0, min=-90, max=90, description='elevation')
+            azimuth_slider = widgets.IntSlider(value=0, min=-180, max=180, description='azimuth')
+            interact_func = interactive(self.sub_plot, elevation=elevation_slider, azimuth=azimuth_slider)
+            interact_func.children[0].value = elevation
+            interact_func.children[1].value = azimuth
+            display(interact_func)
+            plt.show()
+        else:
+            # Packaged app: just show static figure at default angle
+            self.sub_plot(elevation=elevation, azimuth=azimuth)
+            plt.show()
     
     def sub_plot(self,elevation, azimuth):
         a = self.lattice_param[0]

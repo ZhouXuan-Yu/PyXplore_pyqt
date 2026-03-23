@@ -15,6 +15,7 @@ from ...base_page import BasePage
 from ...config import XRAY_WAVELENGTHS, DEFAULT_PARAMS
 from ...utils import (
     validate_cif_file, select_file, show_error_message, show_info_message,
+    format_wpem_missing_message,
     get_output_path
 )
 
@@ -219,7 +220,7 @@ class XRDSimulationPage(BasePage):
             show_error_message("错误", "请先选择CIF文件", self)
             return
         if not self.WPEM:
-            show_error_message("错误", "PyXplore库未加载", self)
+            show_error_message("错误", format_wpem_missing_message(self), self)
             return
 
         self.run_btn.setEnabled(False)
@@ -232,6 +233,9 @@ class XRDSimulationPage(BasePage):
                 self.step_size.value()
             )
 
+            # work_dir 放在 output/simulation 下，WPEM 会在其下建 Simulation_WPEM/ 子目录
+            work_dir = self.get_output_dir() / "simulation"
+            work_dir.mkdir(parents=True, exist_ok=True)
             params = {
                 'filepath': self.cif_file,
                 'wavelength': self.wavelength_combo.currentText(),
@@ -242,6 +246,7 @@ class XRDSimulationPage(BasePage):
                 'GrainSize': self.grain_size_spin.value() if self.peakwidth_check.isChecked() else None,
                 'zero_shift': self.zeroshift_spin.value() if self.zeroshift_spin.value() != 0 else None,
                 'bacI': self.bacI_check.isChecked(),
+                'work_dir': str(work_dir),
             }
 
             result = self.WPEM.XRDSimulation(**params)
@@ -255,6 +260,13 @@ class XRDSimulationPage(BasePage):
             self.preview_text.setText(preview)
             self.save_btn.setEnabled(True)
 
+            self.record_operation_history(
+                "XRD模拟",
+                str(work_dir),
+                total=1,
+                success=1,
+                files=[self.cif_file],
+            )
             show_info_message("完成", "XRD模拟完成!", self)
 
         except Exception as e:
@@ -269,7 +281,8 @@ class XRDSimulationPage(BasePage):
         output_dir = self.get_output_dir() / "simulation"
         output_dir.mkdir(parents=True, exist_ok=True)
 
-        source_dir = Path("Simulation_WPEM")
+        # 从 output/simulation/Simulation_WPEM/ 复制回来（与传入的 work_dir 一致）
+        source_dir = self.get_output_dir() / "simulation" / "Simulation_WPEM"
         if source_dir.exists():
             import shutil
             dest = output_dir
@@ -279,7 +292,7 @@ class XRDSimulationPage(BasePage):
                 shutil.copy(f, dest / f.name)
 
             self.log(f"结果已保存到: {output_dir}")
-            show_info_message("保存成功", f"���果已保存到:\n{output_dir}", self)
+            show_info_message("保存成功", f"结果已保存到:\n{output_dir}", self)
         else:
             show_error_message("错误", "找不到输出文件", self)
 

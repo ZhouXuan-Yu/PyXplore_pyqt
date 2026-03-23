@@ -6,7 +6,7 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-dist/
+# dist/  # Uncomment to exclude dist folder
 downloads/
 eggs/
 .eggs/
@@ -50,3 +50,4 @@ Atest/
 
 # Desktop app specific
 desktop_app/__pycache__/
+desktop_app/output/

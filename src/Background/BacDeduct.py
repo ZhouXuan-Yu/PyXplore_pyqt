@@ -8,7 +8,27 @@ import os
 import heapq
 import numpy.fft as nf
 from scipy.signal import savgol_filter
+import matplotlib
 import matplotlib.pyplot as plt
+
+
+def _plt_show_if_interactive():
+    """
+    仅在 GUI 后端下调用 plt.show()。
+    在 Agg 等非交互后端（如 PyQt 桌面、打包环境）中跳过，避免 UserWarning 与无效弹窗。
+    """
+    try:
+        backend = matplotlib.get_backend().lower()
+    except Exception:
+        return
+    # 短名或 module://.../backend_xxx 形式
+    if backend in ("agg", "svg", "pdf", "ps", "template"):
+        return
+    if "backend_agg" in backend:
+        return
+    if any(x in backend for x in ("backend_svg", "backend_pdf", "backend_ps", "backend_template")):
+        return
+    plt.show()
 from sklearn.gaussian_process import GaussianProcessRegressor as Gpr
 from sklearn.gaussian_process.kernels import RBF, WhiteKernel
 import xml.etree.ElementTree as ET
@@ -228,7 +248,7 @@ class TwiceFilter:
             plt.ylabel('I (a.u.)')
             plt.legend()
             plt.savefig(os.path.join(self.dir, 'background_function_distribution_constant.png'), dpi=800)
-            plt.show()
+            _plt_show_if_interactive()
             plt.clf()
 
         # Be careful! if choose 'polynomial', WPEM models the variance as a three-times polynomial function of diffraction angles
@@ -274,7 +294,7 @@ class TwiceFilter:
             plt.ylabel('I (a.u.)')
             plt.legend()
             plt.savefig(os.path.join(self.dir, 'background function distribution_polynomial.png'), dpi=800)
-            plt.show()
+            _plt_show_if_interactive()
             plt.clf()
 
 
@@ -324,7 +344,7 @@ class TwiceFilter:
             plt.ylabel('I (a.u.)')
             plt.legend()
             plt.savefig(os.path.join(self.dir, 'background function distribution _ multivariate gaussian.png'), dpi=800)
-            plt.show()
+            _plt_show_if_interactive()
             plt.clf()
 
 
@@ -353,7 +373,7 @@ class TwiceFilter:
         plt.ylabel('I (a.u.)')
         plt.legend()
         plt.savefig(os.path.join(self.dir, 'background points.png'),dpi=800)
-        plt.show()
+        _plt_show_if_interactive()
         plt.clf()
 
         plt.plot(angle, signal, color='cyan', label='original intensity')
@@ -368,7 +388,7 @@ class TwiceFilter:
         plt.ylabel('I (a.u.)')
         plt.legend()
         plt.savefig(os.path.join(self.dir, 'backgroundfittingcurve.png'),dpi=800)
-        plt.show()
+        _plt_show_if_interactive()
         plt.clf()
         
         plt.plot(angle, signal, color='cyan', label='original intensity')
@@ -382,7 +402,7 @@ class TwiceFilter:
         plt.ylabel('I (a.u.)')
         plt.legend()
         plt.savefig(os.path.join(self.dir, 'de_backgroundfittingcurve.png'),dpi=800)
-        plt.show()
+        _plt_show_if_interactive()
         plt.clf()
         print('\n================================')
         return standard_deviation

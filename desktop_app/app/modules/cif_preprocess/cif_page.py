@@ -15,6 +15,7 @@ from ...base_page import BasePage
 from ...config import XRAY_WAVELENGTHS, DEFAULT_PARAMS
 from ...utils import (
     validate_cif_file, select_file, show_error_message, show_info_message,
+    format_wpem_missing_message,
     format_number
 )
 
@@ -191,7 +192,7 @@ class CIFPreprocessPage(BasePage):
             return
 
         if not self.WPEM:
-            show_error_message("Error", "PyXplore library not loaded", self)
+            show_error_message("Error", format_wpem_missing_message(self), self)
             return
 
         self.run_btn.setEnabled(False)
@@ -210,6 +211,10 @@ class CIFPreprocessPage(BasePage):
                 'cal_extinction': self.cal_extinction_check.isChecked(),
             }
 
+            # work_dir 放在 output/cif_preprocess 下，WPEM 会在其下建 output_xrd/ 子目录
+            work_dir = self.get_output_dir() / "cif_preprocess"
+            params["work_dir"] = str(work_dir)
+
             # Call PyXplore library directly
             result = self.WPEM.CIFpreprocess(**params)
 
@@ -218,6 +223,13 @@ class CIFPreprocessPage(BasePage):
             self._display_results()
             self.export_btn.setEnabled(True)
 
+            self.record_operation_history(
+                "CIF预处理",
+                str(work_dir),
+                total=1,
+                success=1,
+                files=[self.cif_file],
+            )
             show_info_message("Complete", "CIF preprocess completed!", self)
 
         except Exception as e:

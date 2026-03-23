@@ -4,7 +4,6 @@
 """
 
 from pathlib import Path
-import json, datetime
 from PyQt5.QtWidgets import (
     QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFileDialog,
     QProgressBar, QComboBox, QGroupBox, QFormLayout,
@@ -15,8 +14,13 @@ from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from ...base_page import BasePage
 from ...config import OUTPUT_DIR, DEFAULT_PARAMS, SPECTRUM_TYPES, BAC_VAR_TYPES
 from ...utils import (
-    select_files, select_directory, show_error_message, show_info_message,
-    load_xrd_data
+    select_files,
+    select_directory,
+    show_error_message,
+    show_info_message,
+    load_xrd_data,
+    append_desktop_history,
+    format_wpem_missing_message,
 )
 
 
@@ -77,10 +81,18 @@ class BatchWorker(QThread):
 
                 elif self.mode == "批量CIF预处理":
                     self.log.emit(f"解析: {fname.name}")
+                    self.WPEM.CIFpreprocess(
+                        filepath=str(fname),
+                        work_dir=str(Path(work_dir) / "CIFpreprocess"),
+                    )
                     self.file_done.emit(i, "完成", work_dir)
 
                 elif self.mode == "批量XRD模拟":
                     self.log.emit(f"模拟: {fname.name}")
+                    self.WPEM.XRDsimulate(
+                        filepath=str(fname),
+                        work_dir=str(Path(work_dir) / "XRDsimulate"),
+                    )
                     self.file_done.emit(i, "完成", work_dir)
 
             if not self._stop:
@@ -383,7 +395,7 @@ class BatchPage(BasePage):
             return
 
         if not self.WPEM:
-            show_error_message("错误", "PyXplore库未加载", self)
+            show_error_message("错误", format_wpem_missing_message(self), self)
             return
 
         mode = self.mode_combo.currentText()
@@ -432,34 +444,6 @@ class BatchPage(BasePage):
         """日志更新"""
         self.log_text.append(f"> {message}")
 
-    def _save_batch_history(self, mode, files, success_count, base_dir):
-        """追加一条历史记录并持久化到文件"""
-        hist_file = self._get_history_file()
-        if hist_file.exists():
-            try:
-                with open(hist_file, 'r', encoding='utf-8') as f:
-                    records = json.load(f)
-            except Exception:
-                records = []
-        else:
-            records = []
-        records.insert(0, {
-            "time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "mode": mode,
-            "total": len(files),
-            "success": success_count,
-            "base_dir": base_dir,
-            "files": [str(f) for f in files],
-        })
-        if len(records) > 100:
-            records = records[:100]
-        with open(hist_file, 'w', encoding='utf-8') as f:
-            json.dump(records, f, ensure_ascii=False, indent=2)
-
-    def _get_history_file(self):
-        """获取历史记录文件路径"""
-        return OUTPUT_DIR / "batch_history.json"
-
     def _on_finished(self, success, message):
         """处理完成"""
         # 统计成功数，写入历史文件
@@ -467,11 +451,12 @@ class BatchPage(BasePage):
             1 for r in range(self.file_table.rowCount())
             if self.file_table.item(r, 2).text() == "完成"
         )
-        self._save_batch_history(
+        append_desktop_history(
             self.mode_combo.currentText(),
-            self.file_list,
-            success_count,
             self.out_dir_edit.text(),
+            total=len(self.file_list),
+            success=success_count,
+            files=self.file_list,
         )
 
         self.start_btn.setEnabled(True)

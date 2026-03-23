@@ -14,7 +14,8 @@ from PyQt5.QtCore import Qt
 from ...base_page import BasePage
 from ...config import DEFAULT_PARAMS
 from ...utils import (
-    select_file, select_files, show_error_message, show_info_message
+    select_file, select_files, show_error_message, show_info_message,
+    format_wpem_missing_message,
 )
 
 
@@ -211,7 +212,7 @@ class XRDRefinementPage(BasePage):
             return
 
         if not self.WPEM:
-            show_error_message("错误", "PyXplore库未加载", self)
+            show_error_message("错误", format_wpem_missing_message(self), self)
             return
 
         self.run_btn.setEnabled(False)
@@ -231,6 +232,8 @@ class XRDRefinementPage(BasePage):
                 lattice_list.append(latt)
                 density_list.append(dens)
 
+            # work_dir 放在 output/refinement 下，WPEM 会在其下建 ConvertedDocuments/、peak*.csv 等文件
+            work_dir = self.get_output_dir() / "refinement"
             params = {
                 'wavelength': [float(self.wavelength_edit.text())],
                 'Var': self.var_spin.value(),
@@ -243,6 +246,7 @@ class XRDRefinementPage(BasePage):
                 'iter_max': self.iter_max_spin.value(),
                 'cpu': self.cpu_spin.value(),
                 'MODEL': self.model_combo.currentText(),
+                'work_dir': str(work_dir),
             }
 
             durtime, ini_CL = self.WPEM.XRDfit(**params)
@@ -258,6 +262,14 @@ class XRDRefinementPage(BasePage):
             self.result_text.setText(result)
             self.log("XRD精修完成!")
 
+            self.record_operation_history(
+                "XRD精修",
+                str(work_dir),
+                total=1,
+                success=1,
+                files=list(self.cif_files)
+                + [self.original_file, self.nobac_file, self.bac_file],
+            )
             show_info_message("完成", "精修完成!", self)
 
         except Exception as e:

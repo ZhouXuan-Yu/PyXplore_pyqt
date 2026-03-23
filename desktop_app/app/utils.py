@@ -274,6 +274,60 @@ def get_output_path(prefix, extension='csv', subdir=None):
     return output_dir / filename
 
 
+# 桌面端历史记录（与旧版 batch_history.json 兼容，现亦写入单功能模块操作）
+DESKTOP_HISTORY_FILENAME = "batch_history.json"
+MAX_DESKTOP_HISTORY_RECORDS = 100
+
+
+def get_desktop_history_path():
+    """历史记录 JSON 路径（位于 OUTPUT_DIR）"""
+    return OUTPUT_DIR / DESKTOP_HISTORY_FILENAME
+
+
+def append_desktop_history(mode, base_dir, total=1, success=1, files=None):
+    """
+    追加一条桌面操作历史（新记录在前），供「历史记录」页展示。
+
+    :param mode: 类型描述（如「批量背景扣除」「XRD精修」）
+    :param base_dir: 输出/工作目录（str 或 Path）
+    :param total: 任务涉及文件数或子任务数
+    :param success: 成功数量
+    :param files: 可选，相关输入文件路径列表
+    """
+    hist_file = get_desktop_history_path()
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    if hist_file.exists():
+        try:
+            with open(hist_file, "r", encoding="utf-8") as f:
+                records = json.load(f)
+            if not isinstance(records, list):
+                records = []
+        except Exception:
+            records = []
+    else:
+        records = []
+
+    file_list = None
+    if files is not None:
+        file_list = [str(Path(f)) for f in files if f]
+
+    records.insert(
+        0,
+        {
+            "time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "mode": str(mode),
+            "total": int(total),
+            "success": int(success),
+            "base_dir": str(Path(base_dir)) if base_dir else "",
+            "files": file_list,
+        },
+    )
+    records = records[:MAX_DESKTOP_HISTORY_RECORDS]
+    with open(hist_file, "w", encoding="utf-8") as f:
+        json.dump(records, f, ensure_ascii=False, indent=2)
+
+
 def show_info_message(title, message, parent=None):
     """显示信息对话框"""
     msg = QMessageBox(parent)
@@ -400,22 +454,105 @@ def json_to_dict(file_path):
         return False, str(e)
 
 
+def _iter_frozen_bundle_roots():
+    """
+    PyInstaller 运行时可能的路径根（须包含小写包目录 src/）。
+    - onedir：通常 _MEIPASS 与 exe 所在目录相同
+    - 部分环境依赖会放在 exe 同级的 _internal/
+    """
+    roots = []
+    meipass = getattr(sys, "_MEIPASS", None)
+    if meipass:
+        roots.append(Path(meipass))
+    exe_dir = Path(sys.executable).resolve().parent
+    roots.append(exe_dir)
+    internal = exe_dir / "_internal"
+    if internal.is_dir():
+        roots.append(internal)
+    seen, out = set(), []
+    for r in roots:
+        try:
+            key = str(r.resolve())
+        except OSError:
+            key = str(r)
+        if key not in seen:
+            seen.add(key)
+            out.append(r)
+    return out
+
+
 def import_pyXplore():
-    """Import PyXplore library from src directory as a package"""
+    """
+    加载 PyWPEM 计算核心。
+
+    必须通过 **大小写一致** 的包名 ``src.WPEM`` 导入（对应仓库 ``src/WPEM.py``）。
+    在 Linux/macOS 上 ``Src`` / ``wpem`` 等错误大小写会导致导入失败。
+    """
+    import importlib
+
     try:
-        import sys
-        from pathlib import Path
+        if getattr(sys, "frozen", False):
+            chosen = None
+            for root in _iter_frozen_bundle_roots():
+                # 必须存在 src/WPEM.py；包目录名须为小写 src（与 import 语句一致）
+                candidate = root / "src" / "WPEM.py"
+                if candidate.is_file():
+                    chosen = root
+                    break
+            if chosen is None:
+                searched = ", ".join(str(r) for r in _iter_frozen_bundle_roots())
+                return (
+                    False,
+                    "未找到 src/WPEM.py。已搜索: "
+                    + searched
+                    + "。请确认 PyInstaller spec 的 datas 含 (SRC_DIR, \"src\")，且文件夹名为小写 src。",
+                )
+            root_s = str(chosen.resolve())
+            if root_s not in sys.path:
+                sys.path.insert(0, root_s)
+            importlib.invalidate_caches()
+            import src.WPEM as WPEM  # noqa: F401
 
-        # Get the project root
-        project_root = Path(__file__).parent.parent.parent
-        sys.path.insert(0, str(project_root))
+            return True, WPEM
 
-        # Import as src.WPEM module (relative import)
-        import src.WPEM as WPEM
+        # 开发环境：仓库根目录（含包 src/）须在 sys.path
+        project_root = Path(__file__).resolve().parent.parent.parent
+        pr = str(project_root)
+        if pr not in sys.path:
+            sys.path.insert(0, pr)
+        dev_wpem = project_root / "src" / "WPEM.py"
+        if not dev_wpem.is_file():
+            return (
+                False,
+                f"开发环境未找到 {dev_wpem}（请从仓库根目录运行，且勿改动 src/WPEM.py 大小写）。",
+            )
+        importlib.invalidate_caches()
+        import src.WPEM as WPEM  # noqa: F401
+
         return True, WPEM
     except ModuleNotFoundError as e:
-        # Check if it's a missing dependency
         missing_module = str(e).replace("No module named ", "").strip("'\"")
-        return False, f"Missing dependency: {missing_module}. Please install it."
+        return (
+            False,
+            f"导入 src.WPEM 时缺少模块: {missing_module}。"
+            f"请 pip 安装依赖；若已打包请在 spec 的 hiddenimports 中补充。原始信息: {e}",
+        )
     except Exception as e:
-        return False, str(e)
+        return False, f"{type(e).__name__}: {e}"
+
+
+def format_wpem_missing_message(widget):
+    """
+    WPEM 未就绪时的用户提示（含底层异常，便于区分「找不到 src」与「缺依赖」）。
+    """
+    mw = getattr(widget, "main_window", None) if widget is not None else None
+    detail = getattr(mw, "wpem_import_error", None) if mw else None
+    lines = [
+        "未能加载核心计算库。",
+        "说明：桌面端名称「PyXplore」仅为产品名；计算代码即本仓库中的 Python 包 src.WPEM（路径 src/WPEM.py），",
+        "并非单独的 pip 包「PyXplore」。",
+        "若使用打包版，请确认程序目录下存在文件夹 src 且内含 WPEM.py（大小写与仓库一致）。",
+    ]
+    if detail:
+        lines.extend(["", "加载失败详情：", str(detail)])
+    return "\n".join(lines)
